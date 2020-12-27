@@ -59,6 +59,7 @@ if __name__ == '__main__':
 	parser.add_argument("--distil_attention", action="store_true", default=False, help="whether to distil teacher attention")
 	parser.add_argument("--distil_multi_hidden_states", action="store_true", default=False, help="whether to distil multiple hidden layers from teacher")
 	parser.add_argument("--compress_word_embedding", action="store_true", default=False, help="whether to compress word embedding matrix")
+	parser.add_argument("--freeze_word_embedding", action="store_true", default=False, help="whether to use pre-trained word embedding with froze parameters")
 
 	#teacher model parameters (optional)
 	parser.add_argument("--pt_teacher", nargs="?", default="TFBertModel",help="Pre-trained teacher model to distil")
@@ -102,6 +103,9 @@ if __name__ == '__main__':
 		args["distil_multi_hidden_states"] = True
 
 	args["teacher_hidden_size"] = teacher_config.hidden_size
+
+	if args["freeze_word_embedding"]:
+		args["compress_word_embedding"] = True
 
 	#get labels for NER
 	label_list=None
@@ -162,7 +166,6 @@ if __name__ == '__main__':
 
 	#evaluate fine-tuned teacher
 	if args["do_NER"]:
-		teacher_model.evaluate(X_test, y_test, batch_size=args["student_batch_size"]*gpus)
 		ner_evaluate(teacher_model, X_test, y_test, label_list, special_tokens, args["seq_len"], batch_size=args["teacher_batch_size"]*gpus)
 	else:
 		logger.info("Teacher model accuracy {}".format(teacher_model.evaluate(X_test, y_test, batch_size=args["teacher_batch_size"]*gpus)))
@@ -337,4 +340,5 @@ if __name__ == '__main__':
 	#save xtremedistil training config and final model weights
 	json.dump(args, open(os.path.join(args["model_dir"], "xtremedistil-config.json"), 'w'))
 	model_2.save_weights(os.path.join(args["model_dir"], "xtremedistil.h5"))
+	np.save(open(os.path.join(args["model_dir"], "word_embedding.npy"), "wb"), model_2.get_layer("student_2").bert.embeddings.word_embeddings)
 	logger.info ("Model and config saved to {}".format(args["model_dir"]))

@@ -80,7 +80,10 @@ if __name__ == '__main__':
 	#initialize word embedding
 	word_emb = None
 	if distil_args["compress_word_embedding"]:
-		word_emb = np.zeros((pt_tokenizer.vocab_size, distil_args["hidden_size"]))
+		if distil_args["freeze_word_embedding"]:
+			word_emb = np.load(open(os.path.join(args["model_dir"], "word_embedding.npy"), "rb"))
+		else:
+			word_emb = np.zeros((pt_tokenizer.vocab_size, distil_args["hidden_size"]))
 
 	strategy = tf.distribute.MirroredStrategy()
 	policy = mixed_precision.Policy(args["opt_policy"])

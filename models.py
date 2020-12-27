@@ -103,7 +103,10 @@ def construct_transformer_student_model(args, stage, word_emb=None):
     logger.info (student_config)
 
     if word_emb is not None:
-        student_encoder.set_input_embeddings(tf.Variable(word_emb))
+        if args["freeze_word_embedding"]:
+            student_encoder.set_input_embeddings(word_emb)
+        else:
+            student_encoder.set_input_embeddings(tf.Variable(word_emb))
 
     encode = student_encoder(input_ids, token_type_ids=token_type_ids,  attention_mask=attention_mask)
 
