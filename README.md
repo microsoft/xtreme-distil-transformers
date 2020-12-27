@@ -1,4 +1,4 @@
-# XtremeDistil for Distilling Massive Multilingual Neural Network Models
+# XtremeDistil for Distilling Massive Multilingual Neural Networks
 ## ACL 2020 Microsoft Research [[Paper]](https://www.microsoft.com/en-us/research/publication/xtremedistil/) [[Video]](https://slideslive.com/38929189/xtremedistil-multistage-distillation-for-massive-multilingual-models)
 
 ***Update 12/27/2020***
@@ -12,11 +12,14 @@ Releasing [**XtremeDistil-v3**] with Tensorflow 2.3 and [HuggingFace Transformer
 ***Training***
 
 *Sequence Labeling for Wiki NER*
-```PYTHONHASHSEED=42 python run_xtreme_distil.py --task $$PT_DATA_DIR/datasets/NER --model_dir $$PT_OUTPUT_DIR --seq_len 32  --transfer_file $$PT_DATA_DIR/datasets/NER/unlabeled.txt --do_NER --pt_teacher TFBertModel --pt_teacher_checkpoint --pt_teacher_checkpoint bert-base-multilingual-cased --student_batch_size 256 --teacher_batch_size 128  --pt_student_checkpoint minilm/minilm-l6-h384-uncased --distil_chunk_size 10000 --teacher_model_dir $$PT_OUTPUT_DIR --distil_multi_hidden_states --distil_attention --compress_word_embedding --freeze_word_embedding
+```
+PYTHONHASHSEED=42 python run_xtreme_distil.py --task $$PT_DATA_DIR/datasets/NER --model_dir $$PT_OUTPUT_DIR --seq_len 32  --transfer_file $$PT_DATA_DIR/datasets/NER/unlabeled.txt --do_NER --pt_teacher TFBertModel --pt_teacher_checkpoint --pt_teacher_checkpoint bert-base-multilingual-cased --student_batch_size 256 --teacher_batch_size 128  --pt_student_checkpoint minilm/minilm-l6-h384-uncased --distil_chunk_size 10000 --teacher_model_dir $$PT_OUTPUT_DIR --distil_multi_hidden_states --distil_attention --compress_word_embedding --freeze_word_embedding
+
 ```
 
 *Text Classification for MNLI*
-```PYTHONHASHSEED=42 python run_xtreme_distil.py --task $$PT_DATA_DIR/glue_data/MNLI --model_dir $$PT_OUTPUT_DIR --seq_len 128  --transfer_file $$PT_DATA_DIR/glue_data/MNLI/train.tsv --do_pairwise --pt_teacher TFElectraModel --pt_teacher_checkpoint --pt_teacher_checkpoint google/electra-base-discriminator --student_batch_size 128  --pt_student_checkpoint minilm/minilm-l6-h384-uncased --teacher_model_dir $$PT_OUTPUT_DIR --teacher_batch_size 128 --distil_chunk_size 60000
+```
+PYTHONHASHSEED=42 python run_xtreme_distil.py --task $$PT_DATA_DIR/glue_data/MNLI --model_dir $$PT_OUTPUT_DIR --seq_len 128  --transfer_file $$PT_DATA_DIR/glue_data/MNLI/train.tsv --do_pairwise --pt_teacher TFElectraModel --pt_teacher_checkpoint --pt_teacher_checkpoint google/electra-base-discriminator --student_batch_size 128  --pt_student_checkpoint minilm/minilm-l6-h384-uncased --teacher_model_dir $$PT_OUTPUT_DIR --teacher_batch_size 128 --distil_chunk_size 60000
 ```
 
 ***Model Outputs***
