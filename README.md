@@ -1,11 +1,20 @@
-# XtremeDistil for Distilling Massive Multilingual Neural Networks
+# XtremeDistilTransformers for Distilling Massive Multilingual Neural Networks
 ## ACL 2020 Microsoft Research [[Paper]](https://www.microsoft.com/en-us/research/publication/xtremedistil/) [[Video]](https://slideslive.com/38929189/xtremedistil-multistage-distillation-for-massive-multilingual-models)
 
-***Update 12/27/2020***
-Releasing [**XtremeDistil-v3**] with Tensorflow 2.3 and [HuggingFace Transformers](https://huggingface.co/transformers) for distilling all supported [pre-trained language models](https://huggingface.co/transformers/pretrained_models.html) with an unified API for multilingual text classification and sequence tagging tasks. 
+Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Transformers](https://huggingface.co/transformers) with an unified API with the following features:
+* Distil any supported [pre-trained language models](https://huggingface.co/transformers/pretrained_models.html) as teachers (e.g, Bert, Electra, Roberta)
+* Initial student model with any pre-trained model (e.g, MiniLM, DistilBert, TinyBert), or initialize from scratch
+* Multilingual text classification and sequence tagging 
+* Distil multiple hidden states from teacher
+* Distil deep attention networks from teacher
+* Pairwise and instance-level classification tasks (e.g, MNLI, MRPC, SST)
+* Fast mixed precision training for distillation (e.g, mixed_float16, mixed_bfloat16)
+* Progressive knowledge transfer with gradual unfreezing
 
 *Install requirements*
 ```pip install -r requirements.txt```
+
+Initialize *XtremeDistilTransformer* with [MiniLM](https://github.com/microsoft/unilm/tree/master/minilm) student models ([6/384 pre-trained checkpoint](https://1drv.ms/u/s!AscVo8BbvciKgRqua1395a44gr23?e=2C3XcY))
 
 *Sample usages for distilling different pre-trained language models (tested with Python 3.6.9 and CUDA 10.2)*
 
@@ -13,13 +22,79 @@ Releasing [**XtremeDistil-v3**] with Tensorflow 2.3 and [HuggingFace Transformer
 
 *Sequence Labeling for Wiki NER*
 ```
-PYTHONHASHSEED=42 python run_xtreme_distil.py --task $$PT_DATA_DIR/datasets/NER --model_dir $$PT_OUTPUT_DIR --seq_len 32  --transfer_file $$PT_DATA_DIR/datasets/NER/unlabeled.txt --do_NER --pt_teacher TFBertModel --pt_teacher_checkpoint --pt_teacher_checkpoint bert-base-multilingual-cased --student_batch_size 256 --teacher_batch_size 128  --pt_student_checkpoint minilm/minilm-l6-h384-uncased --distil_chunk_size 10000 --teacher_model_dir $$PT_OUTPUT_DIR --distil_multi_hidden_states --distil_attention --compress_word_embedding --freeze_word_embedding
-
+PYTHONHASHSEED=42 python run_xtreme_distil.py 
+--task $$PT_DATA_DIR/datasets/NER 
+--model_dir $$PT_OUTPUT_DIR 
+--seq_len 32  
+--transfer_file $$PT_DATA_DIR/datasets/NER/unlabeled.txt 
+--do_NER 
+--pt_teacher TFBertModel 
+--pt_teacher_checkpoint bert-base-multilingual-cased 
+--student_batch_size 256 
+--teacher_batch_size 128  
+--pt_student_checkpoint minilm/minilm-l6-h384-uncased 
+--distil_chunk_size 10000 
+--teacher_model_dir $$PT_OUTPUT_DIR 
+--distil_multi_hidden_states 
+--distil_attention 
+--compress_word_embedding 
+--freeze_word_embedding
+--opt_policy mixed_float16
 ```
 
 *Text Classification for MNLI*
 ```
-PYTHONHASHSEED=42 python run_xtreme_distil.py --task $$PT_DATA_DIR/glue_data/MNLI --model_dir $$PT_OUTPUT_DIR --seq_len 128  --transfer_file $$PT_DATA_DIR/glue_data/MNLI/train.tsv --do_pairwise --pt_teacher TFElectraModel --pt_teacher_checkpoint --pt_teacher_checkpoint google/electra-base-discriminator --student_batch_size 128  --pt_student_checkpoint minilm/minilm-l6-h384-uncased --teacher_model_dir $$PT_OUTPUT_DIR --teacher_batch_size 128 --distil_chunk_size 60000
+PYTHONHASHSEED=42 python run_xtreme_distil.py 
+--task $$PT_DATA_DIR/glue_data/MNLI 
+--model_dir $$PT_OUTPUT_DIR 
+--seq_len 128  
+--transfer_file $$PT_DATA_DIR/glue_data/MNLI/train.tsv 
+--do_pairwise 
+--pt_teacher TFElectraModel 
+--pt_teacher_checkpoint google/electra-base-discriminator 
+--student_batch_size 128  
+--pt_student_checkpoint minilm/minilm-l6-h384-uncased 
+--teacher_model_dir $$PT_OUTPUT_DIR 
+--teacher_batch_size 32
+--distil_chunk_size 300000
+--opt_policy mixed_float16
+```
+
+*Arguments*
+
+```- refer to code for detailed arguments
+
+- task folder contains
+	-- train/dev/test '.tsv' files with text and classification labels / token-wise tags (space-separated)
+	--- Example 1: feel good about themselves <tab> 1
+	--- Example 2: '' Atelocentra '' Meyrick , 1884 <tab> O B-LOC O O O O
+	-- label files containing class labels for sequence labeling
+	-- transfer file containing unlabeled data
+	
+- model_dir to store/restore model checkpoints
+
+- task arguments
+-- do_pairwise for pairwise classification tasks like MNLI and MRPC
+-- do_NER for sequence labeling
+
+- teacher arguments
+-- pt_teacher for teacher model to distil (e.g., TFBertModel, TFRobertaModel, TFElectraModel)
+-- pt_teacher_checkpoint for pre-trained teacher model checkpoints (e.g., bert-base-multilingual-cased, roberta-large, google/electra-base-discriminator)
+
+- student arguments
+-- pt_student_checkpoint to initialize from pre-trained small student models (e.g., MiniLM, DistilBert, TinyBert)
+-- instead of pre-trained checkpoint, initialize a raw student from scratch with
+--- hidden_size
+--- num_hidden_layers
+--- num_attention_heads
+
+- distillation features
+-- distil_multi_hidden_states to distil multiple hidden states from the teacher
+-- distil_attention to distil deep attention network of the teacher
+-- compress_word_embedding to initialize student word embedding with SVD-compressed teacher word embedding (useful for multilingual distillation)
+-- freeze_word_embedding to keep student word embeddings frozen during distillation (useful for multilingual distillation)
+-- opt_policy (e.g., mixed_float16 for GPU and mixed_bfloat16 for TPU)
+-- distil_chunk_size for using transfer data in chunks during distillation (reduce for OOM issues) 
 ```
 
 ***Model Outputs***
@@ -29,19 +104,11 @@ The above training code generates intermediate model checkpoints to continue the
 ***Prediction***
 
 ```
-PYTHONHASHSEED=42 python run_xtreme_distil_predict.py --do_eval --model_dir $$PT_OUTPUT_DIR --do_predict --pred_file ../../datasets/NER/unlabeled.txt
-```
-
-Arguments
-
-```- refer to code for detailed arguments
-- task folder contains
-	-- train/dev/test '.tsv' files with text and classification labels / token-wise tags (space-separated)
-	--- Example 1: feel good about themselves <tab> 1
-	--- Example 2: '' Atelocentra '' Meyrick , 1884 <tab> O B-LOC O O O O
-	-- label files containing class labels for sequence labeling
-	-- transfer file containing unlabeled data
-- model_dir to store/restore model checkpoints
+PYTHONHASHSEED=42 python run_xtreme_distil_predict.py 
+--do_eval 
+--model_dir $$PT_OUTPUT_DIR 
+--do_predict 
+--pred_file ../../datasets/NER/unlabeled.txt
 ```
 
 If you use this code, please cite:
