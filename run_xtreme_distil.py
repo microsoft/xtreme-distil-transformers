@@ -66,7 +66,7 @@ if __name__ == '__main__':
 	parser.add_argument("--pt_teacher_checkpoint", nargs="?", default="bert-base-multilingual-cased", help="teacher model checkpoint to load to pre-trained weights")
 
 	#mixed precision
-	parser.add_argument("--opt_policy", nargs="?", default="mixed_float16", help="mixed precision policy")
+	parser.add_argument("--opt_policy", nargs="?", default=False, help="mixed precision policy")
 
 	#batch sizes and epochs (optional)
 	parser.add_argument("--student_batch_size", nargs="?", type=int, default=128, help="batch size for distillation")
@@ -145,8 +145,6 @@ if __name__ == '__main__':
 
 	#fine-tune pre-trained teacher
 	strategy = tf.distribute.MirroredStrategy()
-	policy = mixed_precision.Policy(args["opt_policy"])
-	mixed_precision.set_policy(policy)
 
 	gpus = strategy.num_replicas_in_sync
 	logger.info('Number of devices: {}'.format(gpus))
@@ -174,6 +172,11 @@ if __name__ == '__main__':
 	if args["compress_word_embedding"]:
 		word_emb = get_word_embedding(teacher_model.get_layer("tf_model"), pt_tokenizer, args["hidden_size"])
 
+	#set optimization policy
+	if args["opt_policy"]:
+		policy = mixed_precision.Policy(args["opt_policy"])
+		mixed_precision.set_policy(policy)
+		
 	with strategy.scope():
 		model_1 = models.construct_transformer_student_model(args, stage=1, word_emb=word_emb)
 		model_1 = models.compile_model(model_1, args, strategy, stage=1)
@@ -340,5 +343,8 @@ if __name__ == '__main__':
 	#save xtremedistil training config and final model weights
 	json.dump(args, open(os.path.join(args["model_dir"], "xtremedistil-config.json"), 'w'))
 	model_2.save_weights(os.path.join(args["model_dir"], "xtremedistil.h5"))
-	np.save(open(os.path.join(args["model_dir"], "word_embedding.npy"), "wb"), model_2.get_layer("student_2").bert.embeddings.word_embeddings)
+	word_embeddings = model_2.get_layer("student_2").bert.embeddings.word_embeddings
+	if type(word_embeddings) != np.ndarray:
+		word_embeddings = word_embeddings.numpy()
+	np.save(open(os.path.join(args["model_dir"], "word_embedding.npy"), "wb"), word_embeddings)
 	logger.info ("Model and config saved to {}".format(args["model_dir"]))
