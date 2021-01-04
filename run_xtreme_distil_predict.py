@@ -44,7 +44,7 @@ if __name__ == '__main__':
 	parser.add_argument("--do_predict", action="store_true", default=False, help="whether to make model predictions")
 
 	#mixed precision
-	parser.add_argument("--opt_policy", nargs="?", default="mixed_float16", help="mixed precision policy")
+	parser.add_argument("--opt_policy", nargs="?", default=False, help="mixed precision policy")
 
 	args = vars(parser.parse_args())
 	logger.info(args)
@@ -86,8 +86,9 @@ if __name__ == '__main__':
 			word_emb = np.zeros((pt_tokenizer.vocab_size, distil_args["hidden_size"]))
 
 	strategy = tf.distribute.MirroredStrategy()
-	policy = mixed_precision.Policy(args["opt_policy"])
-	mixed_precision.set_policy(policy)
+	if args["opt_policy"]:
+		policy = mixed_precision.Policy(args["opt_policy"])
+		mixed_precision.set_policy(policy)
 	gpus = strategy.num_replicas_in_sync
 	logger.info('Number of devices: {}'.format(gpus))
 
@@ -116,7 +117,7 @@ if __name__ == '__main__':
 				if distil_args["do_NER"]:
 					fw.write(" ".join(texts[i]) + "\t" + " ".join(y[i][1:len(texts[i])+1]) + "\n")
 				else:
-					fw.write(texts[i] + "\t" + str(y) + "\n")
+					fw.write(" ".join(texts[i]) + "\t" + str(y[i]) + "\n")
 
 
 

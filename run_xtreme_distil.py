@@ -69,7 +69,8 @@ if __name__ == '__main__':
 	parser.add_argument("--opt_policy", nargs="?", default=False, help="mixed precision policy")
 
 	#batch sizes and epochs (optional)
-	parser.add_argument("--student_batch_size", nargs="?", type=int, default=128, help="batch size for distillation")
+	parser.add_argument("--student_distil_batch_size", nargs="?", type=int, default=128, help="batch size for distillation")
+	parser.add_argument("--student_ft_batch_size", nargs="?", type=int, default=32, help="batch size for fine-tuning student model")
 	parser.add_argument("--teacher_batch_size", nargs="?", type=int, default=128, help="batch size for distillation")
 	parser.add_argument("--ft_epochs", nargs="?", type=int, default=100, help="epochs for fine-tuning")
 	parser.add_argument("--distil_epochs", nargs="?", type=int, default=500, help="epochs for distillation")
@@ -176,7 +177,7 @@ if __name__ == '__main__':
 	if args["opt_policy"]:
 		policy = mixed_precision.Policy(args["opt_policy"])
 		mixed_precision.set_policy(policy)
-		
+
 	with strategy.scope():
 		model_1 = models.construct_transformer_student_model(args, stage=1, word_emb=word_emb)
 		model_1 = models.compile_model(model_1, args, strategy, stage=1)
@@ -259,7 +260,7 @@ if __name__ == '__main__':
 					history = json.load(open(history_file, 'r'))
 				else:
 					logger.info (model_1.summary())
-					model_history = model_1.fit(input_data_chunk, y_layer_teacher, shuffle=True, batch_size=args["student_batch_size"]*gpus, verbose=2, epochs=args["distil_epochs"], callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args["patience"], restore_best_weights=True)], validation_split=0.1)
+					model_history = model_1.fit(input_data_chunk, y_layer_teacher, shuffle=True, batch_size=args["student_distil_batch_size"]*gpus, verbose=2, epochs=args["distil_epochs"], callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args["patience"], restore_best_weights=True)], validation_split=0.1)
 					history = model_history.history
 					model_1.save_weights(model_file)
 					json.dump(history, open(history_file, 'w'))
@@ -284,7 +285,7 @@ if __name__ == '__main__':
 					history = json.load(open(history_file, 'r'))
 				else:
 					logger.info (model_2.summary())
-					model_history = model_2.fit(input_data_chunk, y_teacher, shuffle=True, batch_size=args["student_batch_size"]*gpus, verbose=2, epochs=args["distil_epochs"], callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args["patience"], restore_best_weights=True)], validation_split=0.1)
+					model_history = model_2.fit(input_data_chunk, y_teacher, shuffle=True, batch_size=args["student_distil_batch_size"]*gpus, verbose=2, epochs=args["distil_epochs"], callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=args["patience"], restore_best_weights=True)], validation_split=0.1)
 					history = model_history.history
 					model_2.save_weights(model_file)
 					json.dump(history, open(history_file, 'w'))
@@ -306,9 +307,9 @@ if __name__ == '__main__':
 
 		if stage > 1 and stage < 3+len(shared_layers):
 			if args["do_NER"]:
-				cur_eval = ner_evaluate(model_2, X_test, y_test, label_list, special_tokens, args["seq_len"], batch_size=args["student_batch_size"]*gpus)
+				cur_eval = ner_evaluate(model_2, X_test, y_test, label_list, special_tokens, args["seq_len"], batch_size=args["student_distil_batch_size"]*gpus)
 			else:
-				y_pred = np.argmax(model_2.predict(X_test, batch_size=args["student_batch_size"]*gpus), axis=-1)
+				y_pred = np.argmax(model_2.predict(X_test, batch_size=args["student_distil_batch_size"]*gpus), axis=-1)
 				cur_eval = (y_pred == y_test).sum() / len(y_test)
 			if cur_eval >= best_eval:
 				best_eval = cur_eval
@@ -322,15 +323,15 @@ if __name__ == '__main__':
 				model_2.load_weights(model_file)
 			else:
 				logger.info (model_2.summary())
-				model_history = model_2.fit(X_train, y_train, batch_size=args["teacher_batch_size"]*gpus, verbose=2, shuffle=True, epochs=args["ft_epochs"], callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_acc', patience=args["patience"], restore_best_weights=True)], validation_data=(X_dev, y_dev))
+				model_history = model_2.fit(X_train, y_train, batch_size=args["student_ft_batch_size"]*gpus, verbose=2, shuffle=True, epochs=args["ft_epochs"], callbacks=[tf.keras.callbacks.EarlyStopping(monitor='val_acc', patience=args["patience"], restore_best_weights=True)], validation_data=(X_dev, y_dev))
 				history = model_history.history
 				model_2.save_weights(model_file)
 				json.dump(history, open(history_file, 'w'))
 
 			if args["do_NER"]:
-				cur_eval = ner_evaluate(model_2, X_test, y_test, label_list, special_tokens, args["seq_len"], batch_size=args["student_batch_size"]*gpus)
+				cur_eval = ner_evaluate(model_2, X_test, y_test, label_list, special_tokens, args["seq_len"], batch_size=args["student_distil_batch_size"]*gpus)
 			else:
-				y_pred = np.argmax(model_2.predict(X_test, batch_size=args["student_batch_size"]*gpus), axis=-1)
+				y_pred = np.argmax(model_2.predict(X_test, batch_size=args["student_distil_batch_size"]*gpus), axis=-1)
 				cur_eval = (y_pred == y_test).sum() / len(y_test)
 
 			if cur_eval >= best_eval:

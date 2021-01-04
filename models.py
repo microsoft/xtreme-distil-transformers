@@ -51,7 +51,7 @@ def construct_transformer_teacher_model(args, TFModelTeacher, teacher_config):
     input_ids = Input(shape=(args["seq_len"],), dtype=tf.int32, name="input_ids")
     attention_mask = Input(shape=(args["seq_len"],), dtype=tf.int32, name="attention_mask")
     token_type_ids = Input(shape=(args["seq_len"],), dtype=tf.int32, name="token_type_ids")
-    encode = encoder(input_ids)#, token_type_ids=token_type_ids,  attention_mask=attention_mask)
+    encode = encoder(input_ids, token_type_ids=token_type_ids,  attention_mask=attention_mask)
 
     output_hidden_state_indx, output_attention_state_indx =  get_output_state_indices(TFModelTeacher)
 
@@ -108,7 +108,7 @@ def construct_transformer_student_model(args, stage, word_emb=None):
         else:
             student_encoder.set_input_embeddings(tf.Variable(word_emb))
 
-    encode = student_encoder(input_ids)#, token_type_ids=token_type_ids,  attention_mask=attention_mask)
+    encode = student_encoder(input_ids, token_type_ids=token_type_ids,  attention_mask=attention_mask)
 
     output_hidden_state_indx, output_attention_state_indx =  get_output_state_indices(TFBertModel)
 
