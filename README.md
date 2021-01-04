@@ -3,18 +3,20 @@
 
 Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Transformers](https://huggingface.co/transformers) with an unified API with the following features:
 * Distil any supported [pre-trained language models](https://huggingface.co/transformers/pretrained_models.html) as teachers (e.g, Bert, Electra, Roberta)
-* Initial student model with any pre-trained model (e.g, MiniLM, DistilBert, TinyBert), or initialize from scratch
+* Initialize student model with any pre-trained model (e.g, MiniLM, DistilBert, TinyBert), or initialize from scratch
 * Multilingual text classification and sequence tagging 
 * Distil multiple hidden states from teacher
 * Distil deep attention networks from teacher
 * Pairwise and instance-level classification tasks (e.g, MNLI, MRPC, SST)
-* Fast mixed precision training for distillation (e.g, mixed_float16, mixed_bfloat16)
 * Progressive knowledge transfer with gradual unfreezing
+* Fast mixed precision training for distillation (e.g, mixed_float16, mixed_bfloat16)
+* ONNX runtime inference (*to be updated*)
 
 *Install requirements*
 ```pip install -r requirements.txt```
 
-Initialize *XtremeDistilTransformer* with [MiniLM](https://github.com/microsoft/unilm/tree/master/minilm) student models ([6/384 pre-trained checkpoint](https://1drv.ms/u/s!AscVo8BbvciKgRqua1395a44gr23?e=2C3XcY))
+Initialize *XtremeDistilTransformer* with [MiniLM](https://github.com/microsoft/unilm/tree/master/minilm) ([6/384 pre-trained checkpoint](https://1drv.ms/u/s!AscVo8BbvciKgRqua1395a44gr23?e=2C3XcY)) or [TinyBERT] ([4/312 pre-trained checkpoint](https://huggingface.co/nreimers/TinyBERT_L-4_H-312_v2
+))
 
 *Sample usages for distilling different pre-trained language models (tested with Python 3.6.9 and CUDA 10.2)*
 
@@ -30,7 +32,8 @@ PYTHONHASHSEED=42 python run_xtreme_distil.py
 --do_NER 
 --pt_teacher TFBertModel 
 --pt_teacher_checkpoint bert-base-multilingual-cased 
---student_batch_size 256 
+--student_distil_batch_size 256 
+--student_ft_batch_size 32
 --teacher_batch_size 128  
 --pt_student_checkpoint minilm/minilm-l6-h384-uncased 
 --distil_chunk_size 10000 
@@ -52,13 +55,16 @@ PYTHONHASHSEED=42 python run_xtreme_distil.py
 --do_pairwise 
 --pt_teacher TFElectraModel 
 --pt_teacher_checkpoint google/electra-base-discriminator 
---student_batch_size 128  
+--student_distil_batch_size 128  
+--student_ft_batch_size 32
 --pt_student_checkpoint minilm/minilm-l6-h384-uncased 
 --teacher_model_dir $$PT_OUTPUT_DIR 
 --teacher_batch_size 32
 --distil_chunk_size 300000
 --opt_policy mixed_float16
 ```
+
+Alternatively, use TinyBert pre-trained student model checkpoint as `--pt_student_checkpoint nreimers/TinyBERT_L-4_H-312_v2`
 
 *Arguments*
 
@@ -94,7 +100,7 @@ PYTHONHASHSEED=42 python run_xtreme_distil.py
 -- compress_word_embedding to initialize student word embedding with SVD-compressed teacher word embedding (useful for multilingual distillation)
 -- freeze_word_embedding to keep student word embeddings frozen during distillation (useful for multilingual distillation)
 -- opt_policy (e.g., mixed_float16 for GPU and mixed_bfloat16 for TPU)
--- distil_chunk_size for using transfer data in chunks during distillation (reduce for OOM issues) 
+-- distil_chunk_size for using transfer data in chunks during distillation (reduce for OOM issues, checkpoints are saved after every distil_chunk_size steps)
 ```
 
 ***Model Outputs***
@@ -109,6 +115,7 @@ PYTHONHASHSEED=42 python run_xtreme_distil_predict.py
 --model_dir $$PT_OUTPUT_DIR 
 --do_predict 
 --pred_file ../../datasets/NER/unlabeled.txt
+--opt_policy mixed_float16
 ```
 
 If you use this code, please cite:
