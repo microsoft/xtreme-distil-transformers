@@ -15,7 +15,7 @@ Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Tr
 *Install requirements*
 ```pip install -r requirements.txt```
 
-Initialize *XtremeDistilTransformer* with [MiniLM](https://github.com/microsoft/unilm/tree/master/minilm) ([6/384 pre-trained checkpoint](https://1drv.ms/u/s!AscVo8BbvciKgRqua1395a44gr23?e=2C3XcY)) or [TinyBERT] ([4/312 pre-trained checkpoint](https://huggingface.co/nreimers/TinyBERT_L-4_H-312_v2
+Initialize *XtremeDistilTransformer* with [MiniLM](https://github.com/microsoft/unilm/tree/master/minilm) (6/384 pre-trained checkpoint) or [TinyBERT] ([4/312 pre-trained checkpoint](https://huggingface.co/nreimers/TinyBERT_L-4_H-312_v2
 ))
 
 *Sample usages for distilling different pre-trained language models (tested with Python 3.6.9 and CUDA 10.2)*
