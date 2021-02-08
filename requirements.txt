@@ -1,5 +1,5 @@
 tensorflow-gpu==2.3.1
 sklearn
-transformers
+transformers==4.1.1
 sentencepiece==0.1.85
 torch==1.6.0
