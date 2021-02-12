@@ -10,7 +10,7 @@ Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Tr
 * Pairwise and instance-level classification tasks (e.g, MNLI, MRPC, SST)
 * Progressive knowledge transfer with gradual unfreezing
 * Fast mixed precision training for distillation (e.g, mixed_float16, mixed_bfloat16)
-* ONNX runtime inference (*to be updated*)
+* ONNX runtime inference
 
 *Install requirements*
 ```pip install -r requirements.txt```
@@ -116,6 +116,28 @@ PYTHONHASHSEED=42 python run_xtreme_distil_predict.py
 --do_predict 
 --pred_file ../../datasets/NER/unlabeled.txt
 --opt_policy mixed_float16
+```
+
+****ONNX Runtime Inference***
+
+You can also use [ONXX Runtime](https://github.com/microsoft/onnxruntime) for inference speedup with the following script:
+
+```
+PYTHONHASHSEED=42 python run_xtreme_distil_predict_onnx.py 
+--do_eval 
+--model_dir $$PT_OUTPUT_DIR 
+--do_predict 
+--pred_file ../../datasets/NER/unlabeled.txt
+```
+
+For details on ONNX Runtime Inference, environment and arguments refer to this [Notebook](https://github.com/microsoft/onnxruntime/blob/master/onnxruntime/python/tools/transformers/notebooks/Tensorflow_Keras_Bert-Squad_OnnxRuntime_CPU.ipynb)
+
+****Continued Fine-tuning***
+
+You can continue fine-tuning the distilled/compressed student model on more labeled data with the following script:
+
+```
+PYTHONHASHSEED=42 python run_xtreme_distil_ft.py --model_dir $$PT_OUTPUT_DIR 
 ```
 
 If you use this code, please cite:
