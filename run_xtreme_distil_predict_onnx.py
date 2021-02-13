@@ -108,7 +108,7 @@ if __name__ == '__main__':
 		logger.info("X Shape {}".format(X["input_ids"].shape))
 
 	if args["do_eval"]:
-		X_test, y_test = generate_sequence_data(distil_args["seq_len"], os.path.join(distil_args["task"], "test_small.tsv"), pt_tokenizer, label_list=label_list, special_tokens=special_tokens, do_pairwise=distil_args["do_pairwise"], do_NER=distil_args["do_NER"])
+		X_test, y_test = generate_sequence_data(distil_args["seq_len"], os.path.join(distil_args["task"], "test.tsv"), pt_tokenizer, label_list=label_list, special_tokens=special_tokens, do_pairwise=distil_args["do_pairwise"], do_NER=distil_args["do_NER"])
 		logger.info("X Shape {}".format(X_test["input_ids"].shape))
 
 	#initialize word embedding
