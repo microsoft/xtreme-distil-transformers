@@ -65,10 +65,10 @@ if __name__ == '__main__':
 	special_tokens = get_special_tokens_from_teacher(Tokenizer, pt_tokenizer)
 
 	#generate sequence data for fine-tuning pre-trained teacher
-	X_train, y_train = generate_sequence_data(distil_args["seq_len"], os.path.join(distil_args["task"], "train_small.tsv"), pt_tokenizer, label_list=label_list, special_tokens=special_tokens, do_pairwise=distil_args["do_pairwise"], do_NER=distil_args["do_NER"])
+	X_train, y_train = generate_sequence_data(distil_args["seq_len"], os.path.join(distil_args["task"], "train.tsv"), pt_tokenizer, label_list=label_list, special_tokens=special_tokens, do_pairwise=distil_args["do_pairwise"], do_NER=distil_args["do_NER"])
 	logger.info("X Shape {}".format(X_train["input_ids"].shape))
 
-	X_test, y_test = generate_sequence_data(distil_args["seq_len"], os.path.join(distil_args["task"], "test_small.tsv"), pt_tokenizer, label_list=label_list, special_tokens=special_tokens, do_pairwise=distil_args["do_pairwise"], do_NER=distil_args["do_NER"])
+	X_test, y_test = generate_sequence_data(distil_args["seq_len"], os.path.join(distil_args["task"], "test.tsv"), pt_tokenizer, label_list=label_list, special_tokens=special_tokens, do_pairwise=distil_args["do_pairwise"], do_NER=distil_args["do_NER"])
 	logger.info("X Shape {}".format(X_test["input_ids"].shape))
 
 	#initialize word embedding
