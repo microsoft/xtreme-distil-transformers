@@ -176,6 +176,7 @@ if __name__ == '__main__':
 		X["token_type_ids"] = pad_zeros(X["token_type_ids"], distil_args["seq_len"])
 		X["attention_mask"] = pad_zeros(X["attention_mask"], distil_args["seq_len"])
 
+		batch_size = 1
 		inputs_onnx = {k_: np.repeat(v_, batch_size, axis=0) for k_, v_ in X.items()}
 
 		results = session.run(None, inputs_onnx)[0]
