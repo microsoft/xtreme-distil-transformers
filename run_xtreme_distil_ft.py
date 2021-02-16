@@ -37,7 +37,6 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser()
 
 	#required arguments
-	parser.add_argument("--train_file", nargs="?", help="file for continued fine-tuning")
 	parser.add_argument("--batch_size", nargs="?", type=int, default=128, help="train batch size")
 	parser.add_argument("--model_dir", required=True, help="path of model directory")
 	parser.add_argument("--ft_epochs", nargs="?", type=int, default=100, help="epochs for fine-tuning")
