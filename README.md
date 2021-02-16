@@ -131,6 +131,7 @@ PYTHONHASHSEED=42 python run_xtreme_distil_predict_onnx.py
 ```
 
 For details on ONNX Runtime Inference, environment and arguments refer to this [Notebook](https://github.com/microsoft/onnxruntime/blob/master/onnxruntime/python/tools/transformers/notebooks/Tensorflow_Keras_Bert-Squad_OnnxRuntime_CPU.ipynb)
+The script is for online inference with batch_size=1.
 
 ****Continued Fine-tuning***
 
