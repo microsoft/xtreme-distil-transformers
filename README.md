@@ -15,7 +15,7 @@ Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Tr
 *Install requirements*
 ```pip install -r requirements.txt```
 
-Initialize *XtremeDistilTransformer* with [MiniLM](https://github.com/microsoft/unilm/tree/master/minilm) (6/384 pre-trained checkpoint) or [TinyBERT] ([4/312 pre-trained checkpoint](https://huggingface.co/nreimers/TinyBERT_L-4_H-312_v2
+Initialize *XtremeDistilTransformer* with (6/384 pre-trained checkpoint)[https://huggingface.co/microsoft/xtremedistil-l6-h384-uncased] or [TinyBERT] ([4/312 pre-trained checkpoint](https://huggingface.co/nreimers/TinyBERT_L-4_H-312_v2
 ))
 
 *Sample usages for distilling different pre-trained language models (tested with Python 3.6.9 and CUDA 10.2)*
@@ -35,7 +35,7 @@ PYTHONHASHSEED=42 python run_xtreme_distil.py
 --student_distil_batch_size 256 
 --student_ft_batch_size 32
 --teacher_batch_size 128  
---pt_student_checkpoint minilm/minilm-l6-h384-uncased 
+--pt_student_checkpoint microsoft/xtremedistil-l6-h384-uncased 
 --distil_chunk_size 10000 
 --teacher_model_dir $$PT_OUTPUT_DIR 
 --distil_multi_hidden_states 
@@ -57,7 +57,7 @@ PYTHONHASHSEED=42 python run_xtreme_distil.py
 --pt_teacher_checkpoint google/electra-base-discriminator 
 --student_distil_batch_size 128  
 --student_ft_batch_size 32
---pt_student_checkpoint minilm/minilm-l6-h384-uncased 
+--pt_student_checkpoint microsoft/xtremedistil-l6-h384-uncased 
 --teacher_model_dir $$PT_OUTPUT_DIR 
 --teacher_batch_size 32
 --distil_chunk_size 300000
