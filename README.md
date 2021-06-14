@@ -15,7 +15,12 @@ Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Tr
 *Install requirements*
 ```pip install -r requirements.txt```
 
-Initialize *XtremeDistilTransformer* with any of the following pre-distilled checkpoints for best performance: [6/256 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l6-h256-uncased), [6/384 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l6-h384-uncased), [12/384 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l12-h384-uncased).
+You can use the following *task-agnostic pre-distilled checkpoints* from XtremeDistilTransformers for (only) fine-tuning on labeled data from downstream tasks:
+- [6/256 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l6-h256-uncased)
+- [6/384 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l6-h384-uncased)
+- [12/384 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l12-h384-uncased)
+
+For further performance improvement, initialize XtremeDistilTransformers with any of the above pre-distilled checkpoints for *task-specific distillation* with additional unlabeled data from the the downstream task for the best performance.
 
 The following table shows the performance of the above checkpoints on GLUE dev set and SQuAD-v2.
 
