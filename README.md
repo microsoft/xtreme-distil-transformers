@@ -12,15 +12,12 @@ Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Tr
 * Fast mixed precision training for distillation (e.g, mixed_float16, mixed_bfloat16)
 * ONNX runtime inference
 
-*Install requirements*
-```pip install -r requirements.txt```
-
 You can use the following *task-agnostic pre-distilled checkpoints* from XtremeDistilTransformers for (only) fine-tuning on labeled data from downstream tasks:
 - [6/256 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l6-h256-uncased)
 - [6/384 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l6-h384-uncased)
 - [12/384 xtremedistil pre-trained checkpoint](https://huggingface.co/microsoft/xtremedistil-l12-h384-uncased)
 
-For further performance improvement, initialize XtremeDistilTransformers with any of the above pre-distilled checkpoints for *task-specific distillation* with additional unlabeled data from the the downstream task for the best performance.
+For further performance improvement, initialize XtremeDistilTransformers with any of the above pre-distilled checkpoints for *task-specific distillation* with additional unlabeled data from the downstream task for the best performance.
 
 The following table shows the performance of the above checkpoints on GLUE dev set and SQuAD-v2.
 
@@ -34,6 +31,9 @@ The following table shows the performance of the above checkpoints on GLUE dev s
 | XtremeDistil-l6-h256   | 13     | 8.7x     | 83.9 | 89.5 | 90.6   | 80.1 | 91.2 | 90.0   | 74.1   | 85.6 |
 | XtremeDistil-l6-h384   | 22     | 5.3x     | 85.4 | 90.3 | 91.0   | 80.9 | 92.3 | 90.0   | 76.6   | 86.6 |
 | XtremeDistil-l12-h384   | 33     | 2.7x     | 87.2 | 91.9 | 91.3   | 85.6 | 93.1 | 90.4   | 80.2   | 88.5 |
+
+*Install requirements*
+```pip install -r requirements.txt```
 
 Tested with `tensorflow 2.3.1, transformers 4.1.1, torch 1.6.0, python 3.6.9 and CUDA 10.2`
 
