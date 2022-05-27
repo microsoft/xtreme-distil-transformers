@@ -1,5 +1,5 @@
 # XtremeDistilTransformers for Distilling Massive Multilingual Neural Networks
-## Microsoft Research [[Task-specific]](https://www.microsoft.com/en-us/research/publication/xtremedistil/) [[Task-agnostic with Task Transfer]](https://arxiv.org/pdf/2106.04563.pdf)
+## Microsoft Research [[Task-specific]](https://aclanthology.org/2020.acl-main.202.pdf) [[Task-agnostic with Task Transfer]](https://arxiv.org/pdf/2106.04563.pdf)
 
 Releasing [**XtremeDistilTransformers**] with Tensorflow 2.3 and [HuggingFace Transformers](https://huggingface.co/transformers) with an unified API with the following features:
 * Distil any supported [pre-trained language models](https://huggingface.co/transformers/pretrained_models.html) as teachers (e.g, Bert, Electra, Roberta)
